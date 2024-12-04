@@ -1,0 +1,129 @@
+---
+import Nav from "@apdata/tailor/nav";
+import Footer from "@apdata/tailor/footer";
+import "@apdata/tailor/style.css";
+interface Props {
+	title: string;
+	pathToRoot: string;
+	slug: string;
+	description?: string;
+}
+
+const { title, pathToRoot, description, slug } = Astro.props;
+
+const baseUrl = import.meta.env.PRODUCTION_BASE_URL
+const prodUrl = `${baseUrl}${slug}/`
+const shareImg = `${baseUrl}index-share.jpg`
+
+const fontFace = `@font-face {
+		font-family: "AP";
+		src: url("${pathToRoot}fonts/ap_var.woff2") format("woff2");
+		font-weight: 100 1000;
+		font-stretch: 25% 151%;
+	}
+
+	@font-face {
+		font-family: "AP Var";
+		src: url("${pathToRoot}fonts/ap_var.woff2") format("woff2");
+		font-weight: 100 1000;
+		font-stretch: 25% 151%;
+	}
+
+	@font-face {
+		font-family: "AP Italic";
+		src: url("${pathToRoot}fonts/ap_italic.woff2") format("woff2");
+		font-style: italic;
+		font-display: swap;
+		font-weight: 100 900;
+		font-stretch: 25% 151%;
+	}
+
+	body {
+		font-family: "AP";
+	}
+
+	ul { 
+		list-style: none; 
+		margin: 0; 
+	}
+
+	button { 
+		background-color: inherit; 
+		border: none;  
+		text-align: inherit;
+		font-size: inherit;
+		font-family: inherit;
+		text-transform: inherit;
+		margin: 0;
+		padding: 0;
+	}
+
+	footer #ot-sdk-btn.ot-sdk-show-settings {
+		visibility: hidden;
+		color: #fff;
+		border: none;
+		padding: 0;
+		font-size: inherit;
+		font-family: inherit;
+	}
+
+	footer #ot-sdk-btn.ot-sdk-show-settings:hover {
+		color: #999;
+		cursor: pointer;
+	}
+
+	footer #ot-sdk-btn.ot-sdk-show-settings::before {
+		content: attr(data-title) " ";
+    visibility: visible;
+	}
+`
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta property="og:url" content={prodUrl} />
+		<meta property="og:site_name" content="AP NEWS"  />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={shareImg} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content="@AP" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={shareImg} />
+		<link rel="canonical" href={prodUrl}>
+		<style set:html={fontFace} />
+	</head>
+	<body style="padding: 0; margin: 0;">
+		<Nav pathToRoot={pathToRoot} client:load />
+		<div style="margin-bottom: 3rem; position: relative;">
+				<slot />
+		</div>
+		
+
+		<Footer pathToRoot={pathToRoot} client:load />
+	</body>
+</html>
+
+<style is:global>
+html, body {
+	background: #000;
+	color: #FFF;
+	font-family: 'AP';
+	overflow-x: clip;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+  h1, h2, h3, h4, p {
+    margin: 0;
+    padding: 0;
+  }
+</style>

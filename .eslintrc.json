@@ -1,0 +1,14 @@
+{
+  "plugins": ["prettier", "@typescript-eslint"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "prettier/prettier": ["error", { "semi": false, "trailingComma": false }],
+    // ... other rules
+    "semi": ["error", "never"], // disallow semicolons
+    "jsx-a11y/alt-text": [0] // Our image object accepts a Wordpress object including alt, rather than passing alt directly
+  }
+}

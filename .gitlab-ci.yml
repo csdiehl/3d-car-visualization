@@ -1,0 +1,57 @@
+image: associatedpress.jfrog.io/docker-local/interact/nodejs18_awscli:v1
+
+variables:
+  BUILD_FOLDER: dist
+
+stages:
+  - build
+  - uat_deploy
+  - prod_deploy
+
+default:
+  retry:
+    max: 2
+  tags:
+    - Interactives
+  before_script:
+    - aws configure set region us-east-1
+
+build:
+  stage: build
+  script:
+    - curl -u "$SA_USER:$SA_PASS" https://associatedpress.jfrog.io/artifactory/api/npm/auth > .npmrc
+    - npm config set registry https://associatedpress.jfrog.io/artifactory/api/npm/npm
+    - yarn install --frozen-lockfile
+    - yarn build
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+
+uat_deploy:
+  stage: uat_deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - zip -r archive.zip $BUILD_FOLDER
+    - |
+      curl -F "file=@archive.zip" \
+        -F "hmac=$(openssl dgst -sha256 -hmac ${APNEWS_UAT_HASH_KEY} -binary archive.zip | base64)" \
+        -F "id=$CI_PROJECT_NAME" \
+        -H "X-Client-Id: ${APNEWS_UAT_CLIENT_ID}" \
+        -H "X-Client-Secret: ${APNEWS_UAT_CLIENT_SECRET}" \
+        $APNEWS_UAT_UPLOAD_ENDPOINT
+
+prod_deploy:
+  stage: prod_deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  script:
+    - zip -r archive.zip $BUILD_FOLDER
+    - |
+      curl -F "file=@archive.zip" \
+        -F "hmac=$(openssl dgst -sha256 -hmac ${APNEWS_PROD_HASH_KEY} -binary archive.zip | base64)" \
+        -F "id=$CI_PROJECT_NAME" \
+        -H "X-Client-Id: ${APNEWS_PROD_CLIENT_ID}" \
+        -H "X-Client-Secret: ${APNEWS_PROD_CLIENT_SECRET}" \
+        $APNEWS_PROD_UPLOAD_ENDPOINT
